@@ -6,25 +6,8 @@ import zipfile
 from io import BytesIO
 from dotenv import load_dotenv
 
-# Load environment variables from .env file FIRST
-load_dotenv()
-
-# Add agent to path
-sys.path.insert(0, os.path.dirname(__file__))
-
-from agent.graph import agent
-from agent.tools import PROJECT_ROOT, init_project_root
-
-# Get API key from environment (loaded from .env file)
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
-if GROQ_API_KEY:
-    os.environ["GROQ_API_KEY"] = GROQ_API_KEY
-else:
-    st.error("⚠️ GROQ_API_KEY not found! Please add it to your .env file")
-    st.stop()
-
 # UPDATED: Page config with hidden menu items
+# Must be the first Streamlit command in the script.
 st.set_page_config(
     page_title="AI Coding Assistant",
     page_icon="🤖",
@@ -35,6 +18,42 @@ st.set_page_config(
         'About': None
     }
 )
+
+# Load environment variables from .env file (local development)
+load_dotenv()
+
+# Add agent to path
+sys.path.insert(0, os.path.dirname(__file__))
+
+
+def get_secret(name):
+    """Read from Streamlit secrets, returning None when no secrets file exists."""
+    try:
+        return st.secrets[name]
+    except Exception:
+        return None
+
+
+# Streamlit Cloud supplies the key via app Secrets; .env is used locally
+GROQ_API_KEY = get_secret("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
+
+if not GROQ_API_KEY:
+    st.error("⚠️ GROQ_API_KEY not found!")
+    st.markdown("""
+    - **Running locally:** add `GROQ_API_KEY=your_key` to a `.env` file
+    - **On Streamlit Cloud:** add it under *App settings → Secrets* in TOML form:
+      ```toml
+      GROQ_API_KEY = "gsk_your_key_here"
+      ```
+    """)
+    st.stop()
+
+os.environ["GROQ_API_KEY"] = GROQ_API_KEY
+
+# Imported after the key is in os.environ: agent.graph builds the ChatGroq
+# client at import time and fails without it.
+from agent.graph import agent
+from agent.tools import PROJECT_ROOT, init_project_root
 
 # ADD THIS: Hide GitHub button and Streamlit branding
 hide_streamlit_style = """

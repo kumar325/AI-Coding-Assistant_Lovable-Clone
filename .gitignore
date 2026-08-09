@@ -1,6 +1,13 @@
 # Environment variables
 .env
 
+# Streamlit local secrets (set these in App settings -> Secrets when deployed)
+.streamlit/secrets.toml
+
+# uv lockfile: kept out of the repo so Streamlit Cloud installs from
+# requirements.txt instead of a lockfile that omits streamlit
+uv.lock
+
 # Virtual environment
 .venv/
 venv/
