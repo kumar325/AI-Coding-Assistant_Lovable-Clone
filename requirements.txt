@@ -1,8 +1,12 @@
 streamlit>=1.40.0
-langchain>=0.3.27
-langchain-core>=0.3.72
-langchain-groq>=0.3.7
-langgraph>=0.6.3
+
+# Upper bounds are required: langchain 1.x removed the langchain.globals
+# module that agent/graph.py imports. Keep the langchain family on 0.3.x.
+langchain>=0.3.27,<1.0.0
+langchain-core>=0.3.72,<1.0.0
+langchain-groq>=0.3.7,<1.0.0
+langgraph>=0.6.3,<1.0.0
+
 groq>=0.31.0
-pydantic>=2.11.7
+pydantic>=2.11.7,<3.0.0
 python-dotenv>=1.1.1
